@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.IO;
 using UnityEngine;
@@ -46,16 +46,17 @@ public class NewBehaviourScript : MonoBehaviour
                 AndroidJavaObject currentActivity = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
                 currentActivity.Call("runOnUiThread", new AndroidJavaRunnable(() =>
                 {
-                    Debug.Log("SaveFoodImage 2" + filePath);
+                    Debug.Log("SaveFoodImage 2" + savePath);
                     //Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
                     AndroidJavaObject scanIntent = new AndroidJavaObject("android.content.Intent", "android.intent.action.MEDIA_SCANNER_SCAN_FILE");
-                    Debug.Log("SaveFoodImage 3" + filePath);
+                    Debug.Log("SaveFoodImage 3" + savePath);
                     //scanIntent.setData(Uri.fromFile(new File(filePath)));
                     scanIntent.Call("setData", new AndroidJavaClass("android.net.Uri").CallStatic<AndroidJavaObject>("parse", savePath));//"file://"+ savePath
-                    Debug.Log("SaveFoodImage 4" + filePath);
+                    //由于没有导入"android.net.Uri"包 所以这行无法通过
+                    Debug.Log("SaveFoodImage 4" + savePath);
                     //getActivity().sendBroadcast(scanIntent);
                     currentActivity.Call<AndroidJavaObject>("getActivity").Call("sendBroadcast", scanIntent);
-                    Debug.Log("SaveFoodImage 5" + filePath);
+                    Debug.Log("SaveFoodImage 5" + savePath);
                 }));
             }));
         }
