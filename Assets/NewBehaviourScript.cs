@@ -26,45 +26,43 @@ public class NewBehaviourScript : MonoBehaviour
     {
         string filename = "Screenshot_" + System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + ".png";
         string filePath = Application.persistentDataPath + Path.DirectorySeparatorChar + filename;
-        Debug.Log("SaveFoodImage " + filePath);
+        Debug.Log("Save Screenshot " + filePath);
         ScreenCapture.CaptureScreenshot(filename);
 
 #if UNITY_ANDROID
         if (Application.platform == RuntimePlatform.Android)
         {
-            WaitingToSaveGallery(0.1f, () => {
+            StartCoroutine(WaitingToSaveGallery(0.1f, () => {
                 string savePath = "/mnt/sdcard/DCIM/Camera/" + filename;
+                if (!Directory.Exists(Path.GetDirectoryName(savePath)))
                 {
-                    if (!Directory.Exists(Path.GetDirectoryName(savePath)))
-                    {
-                        Directory.CreateDirectory(Path.GetDirectoryName(savePath));
-                    }
-                    //保存文件
-                    File.WriteAllBytes(savePath, File.ReadAllBytes(filePath));
-
-                    Debug.Log("SaveFoodImage 1" + filePath);
-                    //sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File("your path"))););
-                    AndroidJavaObject currentActivity = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
-                    currentActivity.Call("runOnUiThread", new AndroidJavaRunnable(() =>
-                    {
-                        Debug.Log("SaveFoodImage 2" + filePath);
-                        //Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                        AndroidJavaObject scanIntent = new AndroidJavaObject("android.content.Intent", "android.intent.action.MEDIA_SCANNER_SCAN_FILE");
-                        Debug.Log("SaveFoodImage 3" + filePath);
-                        //scanIntent.setData(Uri.fromFile(new File(filePath)));
-                        scanIntent.Call("setData", new AndroidJavaClass("android.net.Uri").CallStatic<AndroidJavaObject>("parse", savePath));
-                        Debug.Log("SaveFoodImage 4" + filePath);
-                        //getActivity().sendBroadcast(scanIntent);
-                        currentActivity.Call<AndroidJavaObject>("getActivity").Call("sendBroadcast", scanIntent);
-                        Debug.Log("SaveFoodImage 5" + filePath);
-                    }));
+                    Directory.CreateDirectory(Path.GetDirectoryName(savePath));
                 }
-            });
+                //保存文件
+                File.WriteAllBytes(savePath, File.ReadAllBytes(filePath));
+
+                Debug.Log("Save Screenshot 1" + filePath);
+                //sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File("your path"))););
+                AndroidJavaObject currentActivity = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+                currentActivity.Call("runOnUiThread", new AndroidJavaRunnable(() =>
+                {
+                    Debug.Log("SaveFoodImage 2" + filePath);
+                    //Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                    AndroidJavaObject scanIntent = new AndroidJavaObject("android.content.Intent", "android.intent.action.MEDIA_SCANNER_SCAN_FILE");
+                    Debug.Log("SaveFoodImage 3" + filePath);
+                    //scanIntent.setData(Uri.fromFile(new File(filePath)));
+                    scanIntent.Call("setData", new AndroidJavaClass("android.net.Uri").CallStatic<AndroidJavaObject>("parse", savePath));//"file://"+ savePath
+                    Debug.Log("SaveFoodImage 4" + filePath);
+                    //getActivity().sendBroadcast(scanIntent);
+                    currentActivity.Call<AndroidJavaObject>("getActivity").Call("sendBroadcast", scanIntent);
+                    Debug.Log("SaveFoodImage 5" + filePath);
+                }));
+            }));
         }
 #elif UNITY_IOS
         if (Application.platform == RuntimePlatform.IPhonePlayer)
         {
-            WaitingToSaveGallery(0.1f, () => { _SaveToGallery(filePath); });
+            StartCoroutine(WaitingToSaveGallery(0.1f, () => { _SaveToGallery(filePath); }));
         }
 #endif
     }

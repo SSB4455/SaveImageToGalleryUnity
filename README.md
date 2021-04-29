@@ -1,0 +1,2 @@
+
+- iOS需要添加相册添加文件权限 NSPhotoLibraryAddUsageDescription
